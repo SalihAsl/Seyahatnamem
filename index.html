@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seyahatnamem - Türkiye Seyhat Haritası</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --secondary: #ff8b38;
+      --secondary-hover: #ea580c;
+      --background: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --text-light: #64748b;
+      --border: #e2e8f0;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --map-bg: #fafad2; /* Bej tema varsayılan */
+      --map-fill: #f0e68c; /* Bej tema varsayılan */
+      --map-fill-hover: #eedd82; /* Bej tema varsayılan */
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--background);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.6;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    header {
+      background-color: var(--card-bg);
+      box-shadow: var(--shadow);
+      padding: 1rem 0;
+      position: relative;
+      z-index: 100;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      position: left;
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-weight: 700;
+      font-size: 1.8rem;
+      color: var(--text);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logo-icon {
+      color: var(--primary);
+      font-size: 1.5rem;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 0.8rem;
+    }
+
+    .social-link {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      color: var(--text);
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+      padding: 0.5rem;
+      border-radius: 9999px;
+      background-color: var(--background);
+    }
+
+    .social-link:hover {
+      color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .social-link i {
+      font-size: 1.1rem;
+    }
+
+    .social-link span {
+      display: inline;
+    }
+
+    main {
+      flex: 1;
+      padding: 2rem 0;
+    }
+
+    .app-title {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .app-title h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+      position: relative;
+      display: inline-block;
+    }
+
+    .app-title h1::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 3px;
+      background-color: var(--secondary);
+      border-radius: 3px;
+    }
+
+    .app-title p {
+      color: var(--text-light);
+      max-width: 600px;
+      margin: 0 auto 1.5rem;
+    }
+
+    .map-container {
+      background-color: var(--map-bg);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+
+    .map-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 1700px;
+      margin: 0 auto;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-bottom: 2rem;
+      padding: 0 1rem;
+    }
+
+    .btn {
+      padding: 0.7rem 1.2rem;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 500;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: var(--shadow);
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background-color: var(--secondary);
+      color: black;
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--secondary-hover);
+      transform: translateY(-2px);
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+
+    .btn-outline:hover {
+      background-color: rgba(79, 70, 229, 0.1);
+    }
+
+    svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 8px;
+      background-color: var(--map-bg);
+    }
+
+    path {
+      fill: var(--map-fill);
+      stroke: white;
+      stroke-width: 2;
+      transition: fill 0.2s ease;
+      cursor: pointer;
+    }
+
+    path:hover {
+      fill: var(--map-fill-hover) !important;
+    }
+
+    .selected {
+      fill: var(--secondary) !important;
+    }
+
+    text {
+      pointer-events: none;
+      font-family: 'Poppins', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      text-anchor: middle;
+      fill: #000000;
+      stroke: none;
+    }
+
+    .selected + text {
+      fill: white;
+      stroke: var(--secondary);
+    }
+
+    /* Renk paleti stilleri */
+    .color-palette {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .color-option {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .color-option:hover {
+      transform: scale(1.1);
+    }
+
+    .color-option.active {
+      border-color: var(--text);
+      transform: scale(1.1);
+    }
+
+    /* İl etiket pozisyon düzeltmeleri */
+    text[id="TR35"] { transform: translate(3px, 30px) !important;font-size: 12px; } /* İzmir */
+    text[id="TR37"] { transform: translate(4px, -5px) !important; } 
+    text[id="TR69"] { transform: translateY(10px) !important; } /* Bayburt */
+    text[id="TR14"] { transform: translateX(13px) !important; }
+    text[id="TR78"] { transform: translateY(10px) !important; }
+    text[id="TR50"] { transform: translateY(10px) !important; }
+    text[id="TR10"] { transform: translate(5px, 15px) !important; } /* Balıkesir */
+    text[id="TR54"] { transform: translate(2px,7px) !important; } /* Sakarya */
+    text[id="TR23"] { transform: translateY(12px) !important; } /* Elazığ */
+    text[id="TR01"] { transform: translateX(-10px) !important; } /* Adana */
+    text[id="TR03"] { transform: translateY(-4px) !important; } /* Afyonkarahisar */
+    text[id="TR48"] { transform: translate(-5px, -12px) !important; } /* Muğla */
+    text[id="TR07"] { transform: translateY(-13px) !important; } /* Antalya */
+    text[id="TR63"] { transform: translateY(8px) !important; } /* Urfa */
+    text[id="TR68"] { transform: translateY(8px) !important; } /* Aksaray */
+    text[id="TR64"] { transform: translateY(3px) !important; }
+    text[id="TR44"] { transform: translateX(-15px) !important; }
+    text[id="TR62"] { transform: translateX(-11px) !important; }
+    text[id="TR22"] { transform: translateY(18px) !important; } /* Edirne */
+    text[id="TR24"] { transform: translate(0px, -8px) !important; }
+    text[id="TR17"] { transform: translate(12px, 8px) !important; } /* Çanakkale */
+    text[id="TR42"] { transform: translateX(-15px) !important; } /* Konya */
+    text[id="TR06"] { transform: translateX(9px) !important; font-size: 12px; } /* Ankara */
+    text[id="TR02"] { transform: translate(-9px,9px) !important; } /* Adıyaman */
+    text[id="TR79"] { transform: translateY(7px) !important; font-size: 12px; } /* Kilis */
+    text[id="TR34"] { transform: translate(-1px,8px) !important; font-size: 12px; } /* İstanbul */
+    text[id="TR12"] { transform: translateX(8px) !important; font-size: 11px; } /* İstanbul */
+    text[id="TR28"] { transform: translateY(-12px) !important; font-size: 11px; } /* İstanbul */
+    text[id="TR60"] { transform: translateY(8px) !important; font-size: 11px; } /* İstanbul */
+    text[id="TR05"] { transform: translate(1px,-3px) !important; font-size: 11px; } /* İstanbul */
+    text[id="TR55"] { transform: translate(3px,14px) !important; font-size: 11px; } /* İstanbul */
+    text[id="TR39"] { transform: translateY(7px) !important; } /* Çanakkale */
+    text[id="TR59"] { transform: translateY(-3px) !important; } /* Çanakkale */
+    text[id="TR57"] { transform: translate(8px, 7px) !important; } /* Çanakkale */
+    text[id="TR70"] { transform: translate(4px,-6px) !important; } /* Çanakkale */
+    text[id="TR31"] { transform: translate(0px, 7px) !important; } /* Çanakkale */
+    text[id="TR36"] { transform: translateY(10px) !important; } /* Çanakkale */
+    text[id="TR76"] { transform: translateY(5px) !important; } /* Çanakkale */
+    text[id="TR56"] { transform: translate(7px,8px) !important; } /* Çanakkale */
+    text[id="TR27"] { transform: translateY(3px) !important; } /* Çanakkale */
+    text[id="TR04"] { transform: translate(-14px,-5px) !important; } /* Çanakkale */
+    text[id="TR72"] { transform: translate(-2px,12px) !important; } /* Çanakkale */
+    text[id="TR49"] { transform: translate(-5px,2px) !important; } /* Çanakkale */
+    text[id="TR11"] { transform: translateY(-5px) !important; } /* Çanakkale */
+    text[id="TR41"] { transform: translate(-2px,5px) !important; } /* Çanakkale */
+    text[id="TR52"] { transform: translate(2px,-3px) !important; } /* Çanakkale */
+    text[id="TR38"] { transform: translateY(-6px) !important; } /* Çanakkale */
+    text[id="TR19"] { transform: translateY(9px) !important; } /* Çanakkale */
+
+    footer {
+      background-color: var(--card-bg);
+      padding: 1.5rem 0;
+      text-align: center;
+      color: var(--text-light);
+      font-size: 0.9rem;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-top: 1rem;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-light);
+    }
+
+    /* Mobile touch için ek iyileştirme */
+    @media (hover: none) {
+      path {
+        transition: none !important;
+      }
+      path.selected {
+        fill: var(--secondary) !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header-content {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      
+      .app-title h1 {
+        font-size: 2rem;
+      }
+      
+      .toolbar {
+        gap: 0.5rem;
+      }
+      
+      .btn {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.8rem;
+      }
+      
+      .stats {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      
+      text {
+        font-size: 8px;
+      }
+
+      /* Sosyal medya butonlarını mobilde sadece ikon göster */
+      .social-link span {
+        display: none;
+      }
+      
+      .social-link {
+        padding: 0.5rem;
+      }
+      
+      .social-links {
+        gap: 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container header-content">
+      <a href="#" class="logo">
+        <i class="fas fa-map-marked-alt logo-icon"></i>
+        <span>Seyahatnamem</span>
+      </a>
+      <div class="social-links">
+        <a href="https://youtube.com/@analiz_harita" target="_blank" class="social-link">
+          <i class="fab fa-youtube"></i>
+          <span>YouTube</span>
+        </a>
+        <a href="https://instagram.com/analiz_harita" target="_blank" class="social-link">
+          <i class="fab fa-instagram"></i>
+          <span>Instagram</span>
+        </a>
+        <a href="https://twitter.com/analiz_harita" target="_blank" class="social-link">
+          <i class="fab fa-twitter"></i>
+          <span>Twitter</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="app-title">
+        <h1>Her Şehir Bir Hikaye</h1>
+        <p>Gezdiğiniz şehirleri işaretleyin, istatistiklerinizi görün ve haritanızı indirin.</p>
+      </div>
+
+      <div class="color-palette">
+        <div class="color-option" style="background-color: #b0c4de;" data-fill="#b0c4de" data-hover="#93c5fd" data-bg="#e6f0ff" title="Açık Mavi"></div>
+        <div class="color-option" style="background-color: #a7c7e7;" data-fill="#a7c7e7" data-hover="#89b4e1" data-bg="#e1ebf7" title="Mavi"></div>
+        <div class="color-option" style="background-color: #c1e1c1;" data-fill="#c1e1c1" data-hover="#a8d8a8" data-bg="#e8f5e8" title="Açık Yeşil"></div>
+        <div class="color-option active" style="background-color: #f0e68c;" data-fill="#f0e68c" data-hover="#eedd82" data-bg="#fafad2" title="Bej (Varsayılan)"></div>
+        <div class="color-option" style="background-color: #d8bfd8;" data-fill="#d8bfd8" data-hover="#d8aed8" data-bg="#f0e0f0" title="Lavanta"></div>
+        <div class="color-option" style="background-color: #ffb6c1;" data-fill="#ffb6c1" data-hover="#ffa7b5" data-bg="#ffecef" title="Açık Pembe"></div>
+        <div class="color-option" style="background-color: #778899;" data-fill="#778899" data-hover="#708090" data-bg="#d3d9e0" title="Slate Gri"></div>
+        <div class="color-option" style="background-color: #ffa07a;" data-fill="#ffa07a" data-hover="#ff8c69" data-bg="#ffebdf" title="Somon"></div>
+      </div>
+
+      <div class="map-container">
+        <div class="map-wrapper">
+          <div id="map"></div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <button class="btn btn-primary" onclick="undo()">
+          <i class="fas fa-undo"></i>
+          Geri Al
+        </button>
+        <button class="btn btn-primary" onclick="redo()">
+          <i class="fas fa-redo"></i>
+          İleri Al
+        </button>
+        <button class="btn btn-outline" onclick="reset()">
+          <i class="fas fa-sync-alt"></i>
+          Sıfırla
+        </button>
+        <button class="btn btn-secondary" onclick="downloadMap()">
+          <i class="fas fa-download"></i>
+          Haritayı İndir
+        </button>
+      </div>
+
+      <div class="stats">
+        <div class="stat-item">
+          <div class="stat-value" id="visited-count">0</div>
+          <div class="stat-label">Ziyaret Edilen</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="remaining-count">81</div>
+          <div class="stat-label">Kalan Şehir</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="percentage">0%</div>
+          <div class="stat-label">Tamamlanma</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p> 2025 Seyahatnamem - Türkiye'yi keşfetme rehberiniz.</p>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script>
+    // Uygulama durumu
+    const state = {
+      history: [],
+      redoStack: [],
+      visitedCount: 0
+    };
+
+    // İl etiketleri
+    const ilEtiketleri = {
+      "01": "Adana", "02": "Adıyaman", "03": "Afyonkarahisar", "04": "Ağrı", "05": "Amasya",
+      "06": "Ankara", "07": "Antalya", "08": "Artvin", "09": "Aydın", "10": "Balıkesir",
+      "11": "Bilecik", "12": "Bingöl", "13": "Bitlis", "14": "Bolu", "15": "Burdur",
+      "16": "Bursa", "17": "Çanakkale", "18": "Çankırı", "19": "Çorum", "20": "Denizli",
+      "21": "Diyarbakır", "22": "Edirne", "23": "Elazığ", "24": "Erzincan", "25": "Erzurum",
+      "26": "Eskişehir", "27": "Gaziantep", "28": "Giresun", "29": "Gümüşhane", "30": "Hakkari",
+      "31": "Hatay", "32": "Isparta", "33": "Mersin", "34": "İstanbul", "35": "İzmir",
+      "36": "Kars", "37": "Kastamonu", "38": "Kayseri", "39": "Kırklareli", "40": "Kırşehir",
+      "41": "Kocaeli", "42": "Konya", "43": "Kütahya", "44": "Malatya", "45": "Manisa",
+      "46": "Kahramanmaraş", "47": "Mardin", "48": "Muğla", "49": "Muş", "50": "Nevşehir",
+      "51": "Niğde", "52": "Ordu", "53": "Rize", "54": "Sakarya", "55": "Samsun",
+      "56": "Siirt", "57": "Sinop", "58": "Sivas", "59": "Tekirdağ", "60": "Tokat",
+      "61": "Trabzon", "62": "Tunceli", "63": "Şanlıurfa", "64": "Uşak", "65": "Van",
+      "66": "Yozgat", "67": "Zonguldak", "68": "Aksaray", "69": "Bayburt", "70": "Karaman",
+      "71": "Kırıkkale", "72": "Batman", "73": "Şırnak", "74": "Bartın", "75": "Ardahan",
+      "76": "Iğdır", "77": "Yalova", "78": "Karabük", "79": "Kilis", "80": "Osmaniye",
+      "81": "Düzce"
+    };
+
+    // Renk paleti seçenekleri (BEJ VARYANTLARI BAŞA ALINDI)
+    const colorPalettes = [
+      { fill: "#f0e68c", hover: "#eedd82", bg: "#fafad2", name: "Bej" },
+      { fill: "#b0c4de", hover: "#93c5fd", bg: "#e6f0ff", name: "Açık Mavi" },
+      { fill: "#a7c7e7", hover: "#89b4e1", bg: "#e1ebf7", name: "Mavi" },
+      { fill: "#c1e1c1", hover: "#a8d8a8", bg: "#e8f5e8", name: "Açık Yeşil" },
+      { fill: "#d8bfd8", hover: "#d8aed8", bg: "#f0e0f0", name: "Lavanta" },
+      { fill: "#ffb6c1", hover: "#ffa7b5", bg: "#ffecef", name: "Açık Pembe" },
+      { fill: "#778899", hover: "#708090", bg: "#d3d9e0", name: "Slate Gri" },
+      { fill: "#ffa07a", hover: "#ff8c69", bg: "#ffebdf", name: "Somon" }
+    ];
+
+    // Durumu kaydet
+    function saveState() {
+      const currentState = {
+        selectedCities: [...document.querySelectorAll('path.selected')].map(p => p.id),
+        visitedCount: state.visitedCount
+      };
+      state.history.push(currentState);
+      if (state.history.length > 50) state.history.shift();
+      state.redoStack = [];
+    }
+
+    // Durumu geri yükle
+    function restoreState(historyItem) {
+      document.querySelectorAll('path').forEach(p => {
+        p.classList.toggle('selected', historyItem.selectedCities.includes(p.id));
+      });
+      updateStats(historyItem.visitedCount);
+    }
+
+    // Geri al
+    function undo() {
+      if (state.history.length > 1) {
+        state.redoStack.push(state.history.pop());
+        restoreState(state.history[state.history.length - 1]);
+      }
+    }
+
+    // İleri al
+    function redo() {
+      if (state.redoStack.length > 0) {
+        const nextState = state.redoStack.pop();
+        state.history.push(nextState);
+        restoreState(nextState);
+      }
+    }
+
+    // Sıfırla
+    function reset() {
+      document.querySelectorAll('path').forEach(p => p.classList.remove('selected'));
+      updateStats(0);
+      saveState();
+    }
+
+    // İstatistikleri güncelle
+    function updateStats(count) {
+      state.visitedCount = count;
+      document.getElementById('visited-count').textContent = count;
+      document.getElementById('remaining-count').textContent = 81 - count;
+      document.getElementById('percentage').textContent = Math.round((count / 81) * 100) + '%';
+    }
+
+    // Haritayı indir
+    function downloadMap() {
+      const mapContainer = document.querySelector(".map-wrapper");
+      const originalMap = document.querySelector("#map svg");
+      
+      // Özel bir div oluştur ve haritayı buraya kopyala
+      const downloadContainer = document.createElement('div');
+      downloadContainer.style.width = '1600px';
+      downloadContainer.style.height = '900px';
+      downloadContainer.style.position = 'relative';
+      downloadContainer.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--map-bg');
+      downloadContainer.style.padding = '5px';
+      downloadContainer.style.boxSizing = 'border-box';
+      downloadContainer.style.overflow = 'hidden';
+      
+      const mapClone = originalMap.cloneNode(true);
+      mapClone.style.width = '1590px'; // 1600 - 5*2 = 1590
+      mapClone.style.height = '890px'; // 900 - 5*2 = 890
+      downloadContainer.appendChild(mapClone);
+      
+      // Geçici olarak body'e ekle
+      document.body.appendChild(downloadContainer);
+      
+      html2canvas(downloadContainer, { 
+        scale: 1,
+        width: 1600,
+        height: 900,
+        logging: false,
+        allowTaint: true,
+        useCORS: true
+      }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'Türkiye_Seyhat_Haritası.png';
+        link.href = canvas.toDataURL('image/png', 1.0);
+        link.click();
+        
+        // Temizlik yap
+        document.body.removeChild(downloadContainer);
+      });
+    }
+
+    // Renk temasını değiştir
+    function changeColorTheme(fill, hover, bg) {
+      document.documentElement.style.setProperty('--map-fill', fill);
+      document.documentElement.style.setProperty('--map-fill-hover', hover);
+      document.documentElement.style.setProperty('--map-bg', bg);
+    }
+
+    // Şehir tıklama işlemi (GÜNCELLENMİŞ VERSİYON)
+    function toggleCity(evt) {
+      const el = evt.target;
+      if (el.tagName !== 'path') return;
+      
+      // Touch event'lerde hemen renk değişimi için
+      el.style.transition = 'none';
+      el.classList.toggle('selected');
+      
+      // Force reflow/repaint to apply the immediate change
+      void el.offsetWidth;
+      
+      // Transition'ı tekrar aktif et
+      el.style.transition = '';
+      
+      // İstatistikleri güncelle
+      const wasSelected = el.classList.contains('selected');
+      const newCount = wasSelected ? state.visitedCount + 1 : state.visitedCount - 1;
+      updateStats(newCount);
+      
+      saveState();
+      
+      // Mobile uyumluluk için touch event sonrası hover durumunu kaldır
+      if ('ontouchstart' in window) {
+        document.querySelectorAll('path').forEach(p => {
+          p.style.pointerEvents = 'none';
+          setTimeout(() => {
+            p.style.pointerEvents = 'auto';
+          }, 100);
+        });
+      }
+    }
+
+    // Şehir etiketlerini ekle
+    function addCityLabels(svgElement) {
+      const paths = svgElement.querySelectorAll("path");
+      paths.forEach(path => {
+        const cityCode = path.id.replace("TR", "");
+        const cityName = ilEtiketleri[cityCode];
+        if (!cityName) return;
+
+        const bbox = path.getBBox();
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("x", bbox.x + bbox.width / 2);
+        text.setAttribute("y", bbox.y + bbox.height / 2);
+        text.setAttribute("id", path.id);
+        text.textContent = cityName;
+        svgElement.appendChild(text);
+      });
+    }
+
+    // Haritayı yükle
+    function loadMap() {
+      fetch("turkiye.svg")
+        .then(res => res.text())
+        .then(svg => {
+          const container = document.getElementById("map");
+          container.innerHTML = svg;
+          
+          const svgElement = container.querySelector("svg");
+          addCityLabels(svgElement);
+          
+          // Tıklama olaylarını ekle
+          container.addEventListener("click", toggleCity);
+          container.addEventListener("touchstart", toggleCity, { passive: true });
+          
+          // Renk paleti etkinleştirme
+          document.querySelectorAll('.color-option').forEach((option, index) => {
+            option.addEventListener('click', () => {
+              document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('active'));
+              option.classList.add('active');
+              const palette = colorPalettes[index];
+              changeColorTheme(palette.fill, palette.hover, palette.bg);
+            });
+          });
+          
+          // Başlangıç durumunu kaydet
+          saveState();
+        })
+        .catch(err => {
+          console.error("Harita yüklenirken hata oluştu:", err);
+          document.getElementById("map").innerHTML = `
+            <div style="text-align: center; padding: 2rem; color: #ef4444;">
+              <h3>Harita yüklenirken hata oluştu</h3>
+              <p>Lütfen sayfayı yenileyin veya daha sonra tekrar deneyin.</p>
+              <button onclick="window.location.reload()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                Sayfayı Yenile
+              </button>
+            </div>
+          `;
+        });
+    }
+
+    // Uygulamayı başlat
+    document.addEventListener('DOMContentLoaded', () => {
+      loadMap();
+      updateStats(0);
+    });
+  </script>
+</body>
+</html>
